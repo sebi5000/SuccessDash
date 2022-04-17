@@ -1,0 +1,85 @@
+﻿@using SuccessDash.Shared.Model
+@using SuccessDash.Shared.Model.Repositories
+
+<RadzenCard class="m-3">
+	<h3>@DataOverview?.Title</h3>
+
+	<RadzenSelectBar TValue="int" @bind-Value=@selectedCharType Change=@(args => OnSelectionChanged(args))>
+		<Items>
+			<RadzenSelectBarItem Text="Line" Value="1" />
+			<RadzenSelectBarItem Text="Bar" Value="2" />
+			<RadzenSelectBarItem Text="Donut" Value="3" />
+			<RadzenSelectBarItem Text="Area" Value="4" />
+		</Items>
+	</RadzenSelectBar>
+
+	<RadzenChart>
+
+		@if (DataOverview == null)
+		{
+			<b>Loading...</b>			
+		}
+		else
+		{		
+			@foreach(var data in DataOverview?.Data)
+			{
+				@switch ((SwitchableBarTypes)selectedCharType)
+				{
+					case SwitchableBarTypes.Line:
+						<RadzenLineSeries Smooth="true" Data="@data.RawData" Title="@data.Title" LineType="LineType.Dashed" CategoryProperty="Category" ValueProperty="Value">
+							<RadzenMarkers MarkerType="MarkerType.Auto" />
+						</RadzenLineSeries>
+						break;
+					
+					case SwitchableBarTypes.Bar:
+						<RadzenBarSeries Data="@data.RawData" Title="@data.Title" LineType="LineType.Solid" CategoryProperty="Category" ValueProperty="Value" />
+						<RadzenBarOptions Radius="5"/>
+						break;
+					
+					case SwitchableBarTypes.Donut:
+						<RadzenDonutSeries Data="@data.RawData" Title="@data.Title" CategoryProperty="Category" ValueProperty="Value" />
+						break;
+
+					case SwitchableBarTypes.Area:
+						<RadzenAreaSeries Smooth="true" Data="@data.RawData" Title="@data.Title" CategoryProperty="Category" ValueProperty="Value" />
+						break;
+
+					default:
+						<RadzenLineSeries Smooth="true" Data="@data.RawData" Title="@data.Title" LineType="LineType.Dashed" CategoryProperty="Category" ValueProperty="Value">
+							<RadzenMarkers MarkerType="MarkerType.Auto" />
+						</RadzenLineSeries>
+						break;
+				}
+				
+				//Donut Charts can only show one Series of Data
+				if ((SwitchableBarTypes)selectedCharType == SwitchableBarTypes.Donut) break;
+			}
+		}
+
+	</RadzenChart>
+
+	<RadzenButton Text="Details" ButtonStyle="ButtonStyle.Info" />
+
+</RadzenCard>
+
+@code {
+
+	[Parameter]
+	public DataOverview? DataOverview { get; set; }
+
+	private int selectedCharType = 1;
+
+	protected override Task OnInitializedAsync()
+	{
+		return base.OnInitializedAsync();
+	}
+
+	private void OnSelectionChanged(int value)
+	{
+		if(selectedCharType != value)
+		{
+			selectedCharType = value;
+			StateHasChanged();
+		}
+	}
+}

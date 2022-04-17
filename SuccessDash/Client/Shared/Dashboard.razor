@@ -1,0 +1,25 @@
+﻿@inject HttpClient Http
+@using SuccessDash.Shared.Model
+
+@if(overviews == null)
+{
+	<b>Loading...</b>
+}
+else
+{
+	@foreach(var overview in overviews)
+	{
+		<DataCard DataOverview="@overview"></DataCard>
+	}	
+}
+
+@code {
+
+	private DataOverview[]? overviews { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		overviews = await Http.GetFromJsonAsync<DataOverview[]>("Dashboard");
+		overviews?.ToList().Sort();
+	}
+}
